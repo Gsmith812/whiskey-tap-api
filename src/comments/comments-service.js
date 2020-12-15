@@ -26,6 +26,11 @@ const CommentsService = {
             .where('id', comment_id)
             .delete()
     },
+    updateComment(knex, comment_id, newCommentFields) {
+        return knex('recipe_comments')
+            .where('id', comment_id)
+            .update(newCommentFields)
+    },
 }
 
 module.exports = CommentsService;

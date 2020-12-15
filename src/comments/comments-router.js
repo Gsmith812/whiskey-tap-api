@@ -83,5 +83,26 @@ commentsRouter
             })
             .catch(next);
     })
+    .patch(jsonParser, (req, res, next) => {
+        const { content } = req.body;
+        const commentToUpdate = { content };
+
+        const numberOfValues = Object.values(commentToUpdate).filter(Boolean).length;
+        if(numberOfValues === 0) {
+            return res.status(400).json({
+                error: { message: `Request body must contain 'content'`}
+            })
+        }
+
+        CommentsService.updateComment(
+            req.app.get('db'),
+            req.params.commentId,
+            commentToUpdate
+        )
+            .then(numRowsAffected => {
+                res.status(204).end();
+            })
+            .catch(next);
+    });
 
 module.exports = commentsRouter;
