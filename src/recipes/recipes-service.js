@@ -21,6 +21,7 @@ const RecipesService = {
     getCocktailSteps(knex, recipe_id) {
         return knex('cocktail_steps')
             .select('*')
+            .orderBy('step_number')
             .where({ recipe_id })
     },
     insertRecipe(knex, newRecipe) {
