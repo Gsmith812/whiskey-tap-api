@@ -28,11 +28,10 @@ recipesRouter
             .catch(next);
 
     })
-    .post(jsonParser, async (req, res, next) => {
+    .post(jsonParser, (req, res, next) => {
         const { cocktail_name, cocktail_type, whiskey_type, description , created_by, ingredients, cocktail_steps } = req.body;
         const newRecipe = { cocktail_name, cocktail_type, whiskey_type, created_by };
         const knex = req.app.get('db');
-
         for(const [key, value] of Object.entries(newRecipe)) {
             if(value == null) {
                 return res.status(400).json({
@@ -42,47 +41,50 @@ recipesRouter
         }
         newRecipe.description = description;
 
-        const recipeItem  = await RecipesService.insertRecipe(
-            knex,
-            newRecipe
-        )
-            .then(recipe => {
-                res.recipe = recipe
-                return recipe
-            })
-            .catch(next);
+        async function insertRecipeIntoDb() {
 
-        const ingredientsList = await ingredients.map(ingredient => {
-            ingredient.recipe_id = recipeItem.id
-            RecipesService.insertIngredients(
+            const recipeItem  = await RecipesService.insertRecipe(
                 knex,
-                ingredient
+                newRecipe
             )
-                .then(ingredient => {
-                    console.log(ingredient)
-                    res.ingredients = {...res.ingredients, ingredient}
-                    return ingredient
+                .then(recipe => {
+                    res.recipe = recipe
+                    return recipe
                 })
                 .catch(next);
-        });
-        const cocktailStepsList = await cocktail_steps.map(step => {
-            step.recipe_id = recipeItem.id;
-            RecipesService.insertCocktailSteps(
-                knex,
-                step
-            )
-                .then(step => {
-                    res.cocktail_steps = {...res.cocktail_steps ,step}
-                    return step
-                })
-                .catch(next);
-        });
-        res
-            .status(201)
-            .location(path.posix.join(req.originalUrl + `/${newRecipe.id}`))
-            .json(recipeItem);
+
+            const ingredientsList = await ingredients.map(ingredient => {
+                ingredient.recipe_id = recipeItem.id
+                RecipesService.insertIngredients(
+                    knex,
+                    ingredient
+                )
+                    .then(ingredient => {
+                        res.ingredients = {...res.ingredients, ingredient}
+                        return ingredient
+                    })
+                    .catch(next);
+            });
+            const cocktailStepsList = await cocktail_steps.map(step => {
+                step.recipe_id = recipeItem.id;
+                RecipesService.insertCocktailSteps(
+                    knex,
+                    step
+                )
+                    .then(step => {
+                        res.cocktail_steps = {...res.cocktail_steps ,step}
+                        return step
+                    })
+                    .catch(next);
+            });
+            res
+                .status(201)
+                .location(path.posix.join(req.originalUrl + `/${newRecipe.id}`))
+                .json(recipeItem);
         
-        
+        }
+
+        insertRecipeIntoDb();
     });
 
 recipesRouter
