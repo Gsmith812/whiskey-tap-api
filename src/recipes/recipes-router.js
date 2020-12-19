@@ -2,7 +2,6 @@ const path = require('path');
 const express = require('express');
 const xss = require('xss');
 const RecipesService = require('./recipes-service');
-const { SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG } = require('constants');
 
 const recipesRouter = express.Router();
 const jsonParser = express.json();
