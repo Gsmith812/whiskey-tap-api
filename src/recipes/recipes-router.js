@@ -2,21 +2,10 @@ const path = require('path');
 const express = require('express');
 const xss = require('xss');
 const RecipesService = require('./recipes-service');
+const { SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG } = require('constants');
 
 const recipesRouter = express.Router();
 const jsonParser = express.json();
-
-recipesRouter
-    .route('/whiskey_types')
-    .get((req, res, next) => {
-        RecipesService.getWhiskeyTypes(
-            req.app.get('db')
-        )
-            .then(whiskey_types => {
-                res.status(200).json(whiskey_types.rows[0].enum_range)
-            })
-            .catch(next);
-    });
 
 recipesRouter
     .route('/')
@@ -120,6 +109,116 @@ recipesRouter
                 .catch(next);
         recipe = {...recipe, ingredients: ingredientsList, cocktail_steps: cocktailStepsList};
         res.json(recipe);  
+    })
+    .delete((req, res, next) => {
+        RecipesService.deleteRecipe(
+            req.app.get('db'),
+            req.params.recipeId
+        )
+            .then(() => {
+                res.status(204).end();
+            })
+            .catch(next);
+    })
+    .patch(jsonParser, (req, res, next) => {
+        const { cocktail_name, cocktail_type, whiskey_type, description , created_by, ingredients, cocktail_steps, ingredientIdsToRemove, cocktailStepIdsToRemove } = req.body;
+        const recipeToUpdate = { cocktail_name, cocktail_type , whiskey_type, description, created_by };
+
+        const numberOfValues = Object.values(recipeToUpdate).filter(Boolean).length;
+        if(numberOfValues === 0) {
+            return res.status(400).json({
+                error: {
+                    message: `Request body must contain at least one updated field.`
+                }
+            })
+        }
+
+       RecipesService.updateRecipe(
+            req.app.get('db'),
+            req.params.recipeId,
+            recipeToUpdate
+        )
+            .then(recipe => {
+                return recipe
+            })
+            .catch(next);
+
+        ingredients.map(ingredient => {
+            if(!ingredient.id) {
+                RecipesService.insertIngredients(
+                    req.app.get('db'),
+                    ingredient
+                )
+                    .then(ingredient => {
+                        return ingredient
+                    })
+                    .catch(next);
+            }
+            else {
+                RecipesService.updateIngredients(
+                    req.app.get('db'),
+                    ingredient.id,
+                    ingredient
+                )
+                    .then(ingredient => {
+                        return ingredient
+                    })
+                    .catch(next);
+            }
+        })
+
+        cocktail_steps.map(step => {
+            if(!step.id) {
+                RecipesService.insertCocktailSteps(
+                    req.app.get('db'),
+                    step
+                )
+                    .then(step => {
+                        return step
+                    })
+                    .catch(next);
+            }
+            else {
+                RecipesService.updateCocktailSteps(
+                    req.app.get('db'),
+                    step.id,
+                    step
+                )
+                    .then(step => {
+                        return step
+                    })
+                    .catch(next);
+            }
+        })
+
+        if(ingredientIdsToRemove) {
+            ingredientIdsToRemove.map(id => {
+                RecipesService.deleteIngredient(
+                    req.app.get('db'),
+                    id
+                )
+                    .then(numRowsAffected => {
+                        console.log(numRowsAffected + `deleted`)
+                    })
+                    .catch(next);
+            })
+        }
+
+        if(cocktailStepIdsToRemove) {
+            cocktailStepIdsToRemove.map(id => {
+                RecipesService.deleteCocktailStep(
+                    req.app.get('db'),
+                    id
+                )
+                .then(numRowsAffected => {
+                    console.log(numRowsAffected + `deleted`)
+                })
+                .catch(next);
+            })
+        }
+
+        res.status(204).end();
+
     })
 
 

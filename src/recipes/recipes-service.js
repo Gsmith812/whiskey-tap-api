@@ -51,27 +51,35 @@ const RecipesService = {
                 return rows[0]
             });
     },
-    getAllIngredients(knex) {
+    deleteRecipe(knex, id) {
+        return knex('recipes')
+            .where({ id })
+            .delete()
+    },
+    deleteIngredient(knex, id) {
         return knex('ingredients')
-            .select('*')
+            .where({ id })
+            .delete()
     },
-    getAllCocktailSteps(knex) {
+    deleteCocktailStep(knex, id) {
         return knex('cocktail_steps')
-            .select('*')
+            .where({ id })
+            .delete()
     },
-    getAllRecipeComments(knex) {
-        return knex('recipe_comments')
-            .select('*')
+    updateRecipe(knex, id, newRecipeFields) {
+        return knex('recipes')
+            .where({ id })
+            .update(newRecipeFields)
     },
-    getAllUsers(knex) {
-        return knex('users')
-            .select('*')
+    updateIngredients(knex, id, newIngredientFields) {
+        return knex('ingredients')
+            .where({ id })
+            .update(newIngredientFields)
     },
-    getCocktailTypes(knex) {
-        return knex.raw(`SELECT enum_range(NULL::cocktail_glass)`)
-    },
-    getWhiskeyTypes(knex) {
-        return knex.raw(`SELECT enum_range(NULL::whiskey_name)`)
+    updateCocktailSteps(knex, id, newCocktailStepFields) {
+        return knex('cocktail_steps')
+            .where({ id })
+            .update(newCocktailStepFields)
     }
 }
 
