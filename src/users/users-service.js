@@ -15,6 +15,9 @@ const UsersService = {
     },
     hashPassword(password) {
         return bcrypt.hash(password, 10);
+    },
+    comparePasswords(loginPassword, savedPassword) {
+        return bcrypt.compare(loginPassword, savedPassword);
     }
 }
 

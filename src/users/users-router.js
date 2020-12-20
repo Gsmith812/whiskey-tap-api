@@ -42,11 +42,52 @@ usersRouter
                 .location(`/users/${savedUser.id}`)
                 .json(savedUser);
         } catch(err) {
-            res.status(400).json({
-                error: { message: err.message }
+            next({
+                status: 400,
+                message: `Something went wrong. Please try again later.`
             })
         }
 
     });
+
+usersRouter
+    .route('/login')
+    .post(jsonParser, async (req, res, next) => {
+        const { email, password } = req.body;
+        const userInfo = { email: email.toLowerCase(), password };
+        for(const [key, value] of Object.entries(userInfo)) {
+            if(!value) {
+                res.status(400).json({
+                    error: {message: `Missing '${key}' in request body`}
+                })
+            }
+        }
+        try {
+            const matchedUser = await UsersService.findByEmail(
+                req.app.get('db'),
+                email
+            )
+            if(!matchedUser) {
+                return res.status(401).json({
+                    error: { message: `Username/Password did not match`}
+                })
+            }
+            const passMatch = await UsersService.comparePasswords(password, matchedUser.password);
+
+            if(!passMatch) {
+                return res.status(401).json({
+                    error: { message: `Username/Password did not match` }
+                })
+            }
+            console.log(matchedUser)
+            res.json({
+                id: matchedUser.id,
+                userName: matchedUser.first_name
+            })
+        } catch(err) {
+           
+            next({status: 401, message: `Something went wrong. Try again later.`});
+        }
+    })
 
 module.exports = usersRouter;
