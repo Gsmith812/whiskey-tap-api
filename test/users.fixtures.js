@@ -57,6 +57,18 @@ function makeUsersArray() {
     ];
 }
 
+function makeNewUser() {
+    const newUser = {
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'johndoe@yahoo.com',
+        password: '12345678',
+        date_of_birth: '12/12/1999'
+    }
+    return { newUser }
+}
+
 module.exports = {
     makeUsersArray,
+    makeNewUser
 }
