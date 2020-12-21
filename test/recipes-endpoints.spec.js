@@ -18,9 +18,9 @@ describe(`Recipes Endpoints`, () => {
 
     after('disconnect from db', () => db.destroy());
 
-    before(`clean the tables`, () => db.raw(`TRUNCATE recipes, users RESTART IDENTITY CASCADE`));
+    before(`clean the tables`, () => db.raw(`TRUNCATE users, recipes RESTART IDENTITY CASCADE`));
 
-    afterEach(`cleanup`, () => db.raw(`TRUNCATE recipes, users RESTART IDENTITY CASCADE`));
+    afterEach(`cleanup`, () => db.raw(`TRUNCATE users RESTART IDENTITY CASCADE`));
 
     describe(`GET /api/recipes`, () => {
         context(`Given no recipes`, () => {
@@ -44,8 +44,6 @@ describe(`Recipes Endpoints`, () => {
                             .insert(recipes)
                     })
             });
-
-            afterEach(`cleanup`, () => db.raw(`TRUNCATE recipes, users RESTART IDENTITY CASCADE`));
 
             it(`GET /api/articles responds with 200 and all of the articles in the table with a user field`, () => {
                 return supertest(app)
@@ -210,7 +208,6 @@ describe(`Recipes Endpoints`, () => {
                     description: 'Updated description',
                 };
                 const expectedRecipe = {
-                    ...newRecipe,
                     ...updateRecipe
                 }
 
@@ -221,7 +218,7 @@ describe(`Recipes Endpoints`, () => {
                     .then(res => 
                         supertest(app)
                             .get(`/api/recipes/${idToUpdate}`)
-                            .expect(expectedRecipe)
+                            .expect(updateRecipe)
                     )
             });
         });
