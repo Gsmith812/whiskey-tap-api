@@ -79,7 +79,6 @@ usersRouter
                     error: { message: `Username/Password did not match` }
                 })
             }
-            console.log(matchedUser)
             res.json({
                 id: matchedUser.id,
                 userName: matchedUser.first_name

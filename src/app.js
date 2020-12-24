@@ -8,6 +8,7 @@ const errorHandler = require('./errorHandler');
 const recipesRouter = require('./recipes/recipes-router');
 const commentsRouter = require('./comments/comments-router');
 const usersRouter = require('./users/users-router');
+const favoritesRouter = require('./favorites/favorites-router');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(cors());
 app.use('/api/recipes', recipesRouter);
 app.use('/api/comments', commentsRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/favorites', favoritesRouter);
 
 app.get('/', (req, res) => {
     res.send('Hello, world!');
