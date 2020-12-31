@@ -38,8 +38,8 @@ When you are ready for deployment, add a new Heroku application with `heroku cre
 
 ### Users
 
-- [Create New User](api-docs/user.md#create-new-user): `POST /users/create`
-- [Login](api-docs/user.md#login): `POST /users/login`
+- [Create New User](api-docs/users.md#create-new-user): `POST /users/create`
+- [Login](api-docs/users.md#login): `POST /users/login`
 
 ### Comments
 
