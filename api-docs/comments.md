@@ -95,11 +95,11 @@ Example Response:
 {}
 ```
 
-## Delete Comment
+## Edit Comment
 
 URL: `/:recipeId/:commentId`
 
-Method: `DELETE`
+Method: `EDIT`
 
 Auth Required: Yes, must be logged in and creator of specified comment.
 
